@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Camera, Map, Compass, Search, User, Bell, Sparkles2, Zap } from 'lucide-react';
+import { Menu, X, Search, User, Bell, Globe, ChevronDown, Settings, LogOut } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import toast from 'react-hot-toast';
@@ -11,28 +11,46 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   
   const { scrollY } = useScroll();
-  const headerOpacity = useTransform(scrollY, [0, 100], [0.9, 0.95]);
-  const headerBlur = useTransform(scrollY, [0, 100], [8, 16]);
+  const headerOpacity = useTransform(scrollY, [0, 100], [0.95, 0.98]);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
     
+    const handleClickOutside = (event: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+    
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const navItems = [
-    { name: 'Home', href: '#home', icon: Compass, description: 'Welcome to wanderlust' },
-    { name: 'AI Stories', href: '#posts', icon: Sparkles2, description: 'Generated adventures' },
-    { name: 'Destinations', href: '#destinations', icon: Map, description: 'Explore the world' },
-    { name: 'Gallery', href: '#gallery', icon: Camera, description: 'Visual journeys' },
+    { name: 'Home', href: '#home', description: 'Return to homepage' },
+    { name: 'Destinations', href: '#destinations', description: 'Explore travel destinations' },
+    { name: 'Stories', href: '#stories', description: 'AI-generated content' },
+    { name: 'Gallery', href: '#gallery', description: 'Photo collections' },
+    { name: 'About', href: '#about', description: 'Learn more about us' },
+  ];
+
+  const profileMenuItems = [
+    { name: 'Profile', icon: User, href: '#profile' },
+    { name: 'Settings', icon: Settings, href: '#settings' },
+    { name: 'Sign Out', icon: LogOut, href: '#signout' },
   ];
 
   const handleSearch = (e: React.FormEvent) => {
@@ -45,328 +63,321 @@ export default function Header() {
     }
   };
 
-  const logoVariants = {
-    hidden: { opacity: 0, scale: 0.8, rotate: -10 },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
-      rotate: 0,
-      transition: { 
-        duration: 0.8, 
-        ease: [0.6, -0.05, 0.01, 0.99],
-        delay: 0.2 
-      }
-    }
-  };
-
-  const navItemVariants = {
-    hidden: { opacity: 0, y: -20, scale: 0.8 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.6, -0.05, 0.01, 0.99],
-        delay: 0.5 + i * 0.1,
-      }
-    })
+  const handleProfileClick = (item: string) => {
+    setIsProfileOpen(false);
+    toast.success(`${item} clicked`, { duration: 1500 });
   };
 
   return (
-    <>
-      {/* Toast Container */}
-      <div id="toast-container" />
-      
-      <motion.header 
-        ref={headerRef}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'navbar-blur shadow-2xl' : 'bg-transparent'
-        }`}
-        style={{
-          backdropFilter: useTransform(headerBlur, (latest) => `blur(${latest}px)`),
-        }}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.8, ease: [0.6, -0.05, 0.01, 0.99] }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            
-            {/* Logo Section */}
+    <motion.header 
+      ref={headerRef}
+      className={`nav-professional transition-all duration-300 ${
+        isScrolled ? 'shadow-luxury' : ''
+      }`}
+      style={{ opacity: headerOpacity }}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6, ease: [0.6, -0.05, 0.01, 0.99] }}
+    >
+      <div className="container-professional">
+        <div className="flex justify-between items-center h-18">
+          
+          {/* Logo Section */}
+          <motion.div 
+            className="flex items-center space-x-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             <motion.div 
-              className="flex items-center space-x-3"
-              variants={logoVariants}
-              initial="hidden"
-              animate="visible"
+              className="w-10 h-10 bg-gradient-accent rounded-xl flex items-center justify-center shadow-professional"
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <motion.div 
-                className="relative w-12 h-12 rounded-2xl overflow-hidden"
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 animate-gradientShift" />
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/90 via-purple-600/90 to-pink-500/90 flex items-center justify-center">
-                  <Compass className="w-6 h-6 text-white drop-shadow-lg" />
-                </div>
-                <div className="absolute inset-0 bg-white/20 backdrop-blur-sm rounded-2xl" />
-              </motion.div>
-              
-              <div className="flex flex-col">
-                <motion.span 
-                  className="text-xl font-bold font-playfair gradient-text"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  Wanderlust Chronicles
-                </motion.span>
-                <motion.span 
-                  className="text-xs text-gray-500 font-medium -mt-1"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1 }}
-                >
-                  AI-Powered Adventures
-                </motion.span>
-              </div>
+              <Globe className="w-5 h-5 text-white" />
             </motion.div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-2">
-              {navItems.map((item, index) => (
-                <motion.div
-                  key={item.name}
-                  className="relative group"
-                  variants={navItemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  custom={index}
-                >
-                  <motion.a
-                    href={item.href}
-                    className="flex items-center space-x-2 px-4 py-2 rounded-xl text-gray-700 hover:text-blue-600 transition-all duration-300 relative overflow-hidden group"
-                    whileHover={{ 
-                      scale: 1.05,
-                      backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    />
-                    <item.icon className="w-4 h-4 relative z-10" />
-                    <span className="font-medium relative z-10">{item.name}</span>
-                    
-                    {/* Tooltip */}
-                    <motion.div
-                      className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 whitespace-nowrap"
-                      initial={{ y: 10, opacity: 0 }}
-                      whileHover={{ y: 0, opacity: 1 }}
-                    >
-                      {item.description}
-                      <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
-                    </motion.div>
-                  </motion.a>
-                </motion.div>
-              ))}
-            </nav>
-
-            {/* Search & Actions */}
-            <div className="hidden md:flex items-center space-x-4">
-              {/* Search Bar */}
-              <motion.form
-                onSubmit={handleSearch}
-                className={`relative transition-all duration-300 ${
-                  isSearchFocused ? 'w-72' : 'w-48'
-                }`}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
+            
+            <div className="flex flex-col">
+              <motion.span 
+                className="text-xl font-bold text-heading"
+                whileHover={{ scale: 1.02 }}
+              >
+                Wanderlust Chronicles
+              </motion.span>
+              <motion.span 
+                className="text-xs text-slate-500 font-medium -mt-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ delay: 0.8 }}
               >
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => setIsSearchFocused(true)}
-                    onBlur={() => setIsSearchFocused(false)}
-                    placeholder="Search destinations..."
-                    className="w-full pl-10 pr-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 text-sm"
-                  />
-                  {searchQuery && (
-                    <motion.button
-                      type="button"
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <X className="w-4 h-4" />
-                    </motion.button>
-                  )}
-                </div>
-              </motion.form>
-
-              {/* Action Buttons */}
-              <motion.div 
-                className="flex items-center space-x-2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1 }}
-              >
-                <motion.button
-                  className="p-2 rounded-xl glass-card hover:glow-blue transition-all duration-300"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => toast.success('Notifications coming soon!', { icon: '🔔' })}
-                >
-                  <Bell className="w-5 h-5 text-gray-600" />
-                  <motion.div
-                    className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center"
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <div className="w-1 h-1 bg-white rounded-full" />
-                  </motion.div>
-                </motion.button>
-
-                <motion.button
-                  className="p-2 rounded-xl glass-card hover:glow-purple transition-all duration-300"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => toast.success('Profile coming soon!', { icon: '👤' })}
-                >
-                  <User className="w-5 h-5 text-gray-600" />
-                </motion.button>
-
-                <motion.button
-                  className="premium-button text-white px-6 py-2 flex items-center space-x-2"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => toast.success('AI Magic activated!', { icon: '✨' })}
-                >
-                  <Zap className="w-4 h-4" />
-                  <span className="font-medium">AI Magic</span>
-                </motion.button>
-              </motion.div>
+                Professional Travel Insights
+              </motion.span>
             </div>
+          </motion.div>
 
-            {/* Mobile menu button */}
-            <motion.button
-              className="lg:hidden p-2 rounded-xl glass-card hover:glow-blue transition-all duration-300"
-              onClick={toggleMenu}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, scale: 0.8 }}
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center space-x-1">
+            {navItems.map((item, index) => (
+              <motion.div
+                key={item.name}
+                className="relative group"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+              >
+                <motion.a
+                  href={item.href}
+                  className="flex items-center px-4 py-2 rounded-lg text-slate-700 hover:text-slate-900 font-medium transition-all duration-200 relative"
+                  whileHover={{ backgroundColor: 'rgba(148, 163, 184, 0.1)' }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span>{item.name}</span>
+                  
+                  {/* Professional tooltip */}
+                  <motion.div
+                    className="tooltip-professional -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap"
+                    initial={{ y: 10, opacity: 0 }}
+                    whileHover={{ y: 0, opacity: 1 }}
+                  >
+                    {item.description}
+                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45" />
+                  </motion.div>
+                </motion.a>
+              </motion.div>
+            ))}
+          </nav>
+
+          {/* Search & Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            {/* Professional Search */}
+            <motion.form
+              onSubmit={handleSearch}
+              className={`relative transition-all duration-300 ${
+                isSearchFocused ? 'w-80' : 'w-64'
+              }`}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6 }}
             >
-              <AnimatePresence mode="wait">
-                {isMenuOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
+                  placeholder="Search destinations, stories..."
+                  className="input-professional pl-10 pr-4 py-2.5 text-sm"
+                />
+                {searchQuery && (
+                  <motion.button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                   >
-                    <X className="w-6 h-6" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Menu className="w-6 h-6" />
-                  </motion.div>
+                    <X className="w-4 h-4" />
+                  </motion.button>
                 )}
-              </AnimatePresence>
-            </motion.button>
-          </div>
-        </div>
+              </div>
+            </motion.form>
 
-        {/* Mobile Navigation */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              className="lg:hidden absolute top-20 left-0 right-0 glass-card mx-4 rounded-2xl overflow-hidden"
-              initial={{ opacity: 0, y: -20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            {/* Professional Action Buttons */}
+            <motion.div 
+              className="flex items-center space-x-3"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8 }}
             >
-              <div className="p-6 space-y-4">
-                {/* Mobile Search */}
-                <motion.form
-                  onSubmit={handleSearch}
-                  className="relative"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 }}
+              {/* Notifications */}
+              <motion.button
+                className="relative p-2.5 rounded-xl hover:bg-slate-100 transition-colors duration-200"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => toast.success('No new notifications', { icon: '🔔' })}
+              >
+                <Bell className="w-5 h-5 text-slate-600" />
+                <motion.div
+                  className="absolute -top-1 -right-1 w-3 h-3 bg-accent-600 rounded-full flex items-center justify-center"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search destinations..."
-                    className="w-full pl-10 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300"
-                  />
-                </motion.form>
+                  <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                </motion.div>
+              </motion.button>
 
-                {/* Mobile Navigation Items */}
-                <nav className="space-y-2">
-                  {navItems.map((item, index) => (
-                    <motion.a
-                      key={item.name}
-                      href={item.href}
-                      className="flex items-center space-x-3 p-4 rounded-xl hover:bg-white/50 transition-all duration-300 group"
-                      onClick={() => setIsMenuOpen(false)}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.2 + index * 0.1 }}
-                      whileHover={{ x: 10 }}
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <item.icon className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-gray-900">{item.name}</div>
-                        <div className="text-sm text-gray-500">{item.description}</div>
-                      </div>
-                    </motion.a>
-                  ))}
-                </nav>
-
-                {/* Mobile Action Button */}
+              {/* Profile Dropdown */}
+              <div className="relative">
                 <motion.button
-                  className="w-full premium-button text-white py-3 flex items-center justify-center space-x-2 mt-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center space-x-2 p-2.5 rounded-xl hover:bg-slate-100 transition-colors duration-200"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    toast.success('AI Magic activated!', { icon: '✨' });
-                  }}
                 >
-                  <Zap className="w-5 h-5" />
-                  <span className="font-semibold">Activate AI Magic</span>
+                  <div className="w-8 h-8 bg-gradient-accent rounded-lg flex items-center justify-center">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
+                    isProfileOpen ? 'rotate-180' : ''
+                  }`} />
                 </motion.button>
+
+                {/* Profile Dropdown Menu */}
+                <AnimatePresence>
+                  {isProfileOpen && (
+                    <motion.div
+                      className="absolute right-0 top-full mt-2 w-48 executive-glass border border-slate-200 rounded-xl overflow-hidden z-50"
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="py-2">
+                        {profileMenuItems.map((item, index) => (
+                          <motion.button
+                            key={item.name}
+                            onClick={() => handleProfileClick(item.name)}
+                            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/50 transition-colors duration-200"
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            whileHover={{ x: 5 }}
+                          >
+                            <item.icon className="w-4 h-4 text-slate-600" />
+                            <span className="text-sm font-medium text-slate-700">{item.name}</span>
+                          </motion.button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.header>
+          </div>
 
-      {/* Spacer to prevent content overlap */}
-      <div className="h-20" />
-    </>
+          {/* Mobile menu button */}
+          <motion.button
+            className="lg:hidden p-2.5 rounded-xl hover:bg-slate-100 transition-colors duration-200"
+            onClick={toggleMenu}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <AnimatePresence mode="wait">
+              {isMenuOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <X className="w-6 h-6 text-slate-700" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Menu className="w-6 h-6 text-slate-700" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
+      </div>
+
+      {/* Professional Mobile Navigation */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            className="lg:hidden absolute top-full left-0 right-0 executive-glass mx-4 rounded-xl overflow-hidden border border-slate-200 z-40"
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="p-6 space-y-6">
+              {/* Mobile Search */}
+              <motion.form
+                onSubmit={handleSearch}
+                className="relative"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search destinations..."
+                  className="input-professional pl-10 pr-4 py-3"
+                />
+              </motion.form>
+
+              {/* Mobile Navigation Items */}
+              <nav className="space-y-2">
+                {navItems.map((item, index) => (
+                  <motion.a
+                    key={item.name}
+                    href={item.href}
+                    className="flex items-center space-x-3 p-4 rounded-xl hover:bg-white/50 transition-colors duration-200 group"
+                    onClick={() => setIsMenuOpen(false)}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + index * 0.1 }}
+                    whileHover={{ x: 5 }}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-gradient-accent group-hover:text-white transition-all duration-200">
+                      <Globe className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-slate-900">{item.name}</div>
+                      <div className="text-sm text-slate-500">{item.description}</div>
+                    </div>
+                  </motion.a>
+                ))}
+              </nav>
+
+              {/* Mobile Profile Section */}
+              <motion.div
+                className="pt-4 border-t border-slate-200 space-y-2"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                {profileMenuItems.map((item, index) => (
+                  <motion.button
+                    key={item.name}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      handleProfileClick(item.name);
+                    }}
+                    className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-white/50 transition-colors duration-200"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 + index * 0.1 }}
+                    whileHover={{ x: 5 }}
+                  >
+                    <item.icon className="w-5 h-5 text-slate-600" />
+                    <span className="font-medium text-slate-700">{item.name}</span>
+                  </motion.button>
+                ))}
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 }
