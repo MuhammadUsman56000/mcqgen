@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { RefreshCw, Plus, Filter } from 'lucide-react';
 import BlogPostCard from './BlogPostCard';
@@ -125,7 +125,7 @@ export default function BlogPostsSection() {
           >
             <div className="text-6xl mb-4">🗺️</div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              No stories found for "{selectedTag}"
+              No stories found for &ldquo;{selectedTag}&rdquo;
             </h3>
             <p className="text-gray-600 mb-6">
               Try selecting a different destination or generate a new AI story.

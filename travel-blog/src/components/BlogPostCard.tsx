@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Clock, MapPin, Calendar, Eye, User, ArrowRight, Tag, Bookmark, Share2 } from 'lucide-react';
+import { Clock, MapPin, Calendar, Eye, User, ArrowRight, Bookmark, Share2 } from 'lucide-react';
 import { TravelPost } from '@/data/travelPosts';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';

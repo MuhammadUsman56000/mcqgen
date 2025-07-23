@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Menu, X, Search, User, Bell, Globe, ChevronDown, Settings, LogOut } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+// import { useInView } from 'react-intersection-observer';
 import toast from 'react-hot-toast';
 
 export default function Header() {

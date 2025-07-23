@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { generateDailyPost } from '@/data/travelPosts';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // In a real application, you would:
     // 1. Authenticate the request
